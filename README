@@ -1,76 +1,61 @@
-# Sentiment Analysis Chatbot Documentation
-
-## Table of Contents
-1. [Project Overview](#project-overview)
-2. [Installation](#installation)
-3. [Project Structure](#project-structure)
-4. [Core Features](#core-features)
-5. [API Documentation](#api-documentation)
-6. [Configuration](#configuration)
-7. [Usage Examples](#usage-examples)
-8. [Troubleshooting](#troubleshooting)
-
-## Project Overview
+# Sentiment Analysis Chatbot
 
 A real-time chatbot system that combines BERT-based sentiment analysis with OpenAI's GPT-3.5 for generating contextual responses. The system maintains conversation memory and provides conversation summaries.
 
-### Key Features
+## Features
+
 - Real-time sentiment analysis using BERT
 - Contextual responses using OpenAI GPT-3.5
 - Conversation memory management
 - Conversation summarization
 - Web interface with real-time updates
 
-## Installation
+## Setup
 
-### Prerequisites
-- Python 3.8+
-- PyTorch
-- CUDA (optional, for GPU support)
-
-### Step 1: Clone the Repository
+1. Clone the repository:
 ```bash
-git clone <repository-url>
+git clone https://github.com/yourusername/sentiment-chatbot.git
 cd sentiment-chatbot
 ```
 
-### Step 2: Install Dependencies
+2. Create and activate a virtual environment:
+```bash
+python -m venv venv
+source venv/bin/activate  # On Windows use: venv\Scripts\activate
+```
+
+3. Install requirements:
 ```bash
 pip install -r requirements.txt
 ```
 
-Required packages:
-```txt
-flask
-flask-cors
-torch
-transformers
-nltk
-openai
+4. Set up your configuration:
+   - Copy `key.example.py` to `key.py`
+   - Add your OpenAI API key in `key.py`
+
+5. Download BERT model files and place them in `bert_sentiment_model/` directory:
+   - config.json
+   - model.safetensors
+   - tokenizer_config.json
+   - vocab.txt
+   - special_tokens_map.json
+   - training_args.bin
+
+6. Run the application:
+```bash
+python app.py
 ```
 
-### Step 3: Set Up Model Files
-Place BERT model files in `./bert_sentiment_model/`:
-- config.json
-- model.safetensors
-- tokenizer_config.json
-- vocab.txt
-- special_tokens_map.json
-- training_args.bin
-
-### Step 4: Configure OpenAI API
-Create a `key.py` file:
-```python
-OPENAI_API_KEY = 'your-api-key-here'
-```
+The application will be available at `http://localhost:5000`
 
 ## Project Structure
 
 ```
 sentiment-chatbot/
 ├── app.py              # Main application file
-├── key.py             # API key configuration
+├── key.example.py      # Example configuration file
 ├── requirements.txt    # Project dependencies
+├── README.md          # Project documentation
 ├── bert_sentiment_model/
 │   ├── config.json
 │   ├── model.safetensors
@@ -79,146 +64,54 @@ sentiment-chatbot/
     └── index.html     # Web interface
 ```
 
-## Core Features
+## Usage
 
-### Sentiment Analysis
-```python
-def process_text(text):
-    """
-    Processes text to determine sentiment
-    Returns: Dict with sentiment, confidence, and scores
-    """
+1. Start the server:
+```bash
+python app.py
 ```
-- Cleans and preprocesses text
-- Uses BERT model for sentiment analysis
-- Returns sentiment classification with confidence scores
 
-### Conversation Management
-```python
-def manage_conversation(session_id, role, content, sentiment=None):
-    """
-    Manages conversation history and sentiment tracking
-    """
-```
-- Maintains conversation history
-- Tracks sentiment trends
-- Manages memory limits
+2. Open your browser and navigate to `http://localhost:5000`
 
-### AI Response Generation
-```python
-def get_ai_response(session_id, user_message, sentiment_info):
-    """
-    Generates contextual responses using OpenAI
-    """
-```
-- Utilizes conversation history
-- Incorporates sentiment context
-- Provides fallback responses
+3. Start chatting! The system will:
+   - Analyze sentiment of your messages
+   - Provide contextual responses
+   - Maintain conversation history
+   - Generate conversation summaries
 
-## API Documentation
+## API Endpoints
 
-### Endpoints
-
-#### 1. GET /
-- Returns the web interface
-- Response: HTML page
-
-#### 2. POST /chat
-- Processes chat messages and returns responses
-- Request Body:
+### POST /chat
+Send a message:
 ```json
 {
-    "text": "user message",
+    "text": "Hello, how are you?",
     "session_id": "unique_session_id"
 }
 ```
-- Response:
-```json
-{
-    "response": "bot response",
-    "sentiment": "positive/neutral/negative",
-    "confidence": 0.95,
-    "additional_info": {
-        "positive": 0.8,
-        "neutral": 0.15,
-        "negative": 0.05
-    }
-}
-```
 
-#### 3. POST /summarize
-- Generates conversation summaries
-- Request Body:
+### POST /summarize
+Get conversation summary:
 ```json
 {
     "session_id": "unique_session_id"
-}
-```
-- Response:
-```json
-{
-    "summary": "conversation summary",
-    "type": "conversation"
 }
 ```
 
 ## Configuration
 
-### Memory Settings
+Configure your OpenAI API key in `key.py`:
 ```python
-MAX_MEMORY = 10  # Maximum number of messages to keep in memory
+OPENAI_API_KEY = 'your-openai-api-key-here'
 ```
 
-### Model Configuration
-```python
-MODEL_PATH = "./bert_sentiment_model"
-```
+## Contributing
 
-### OpenAI Settings
-```python
-client = OpenAI(api_key=OPENAI_API_KEY)
-```
-
-## Usage Examples
-
-### Starting the Server
-```bash
-python app.py
-```
-The server will start on `http://localhost:5000`
-
-### Making API Requests
-
-#### Chat Request
-```python
-import requests
-
-response = requests.post('http://localhost:5000/chat', 
-    json={
-        'text': 'Hello, how are you?',
-        'session_id': 'user123'
-    }
-)
-print(response.json())
-```
-
-#### Summary Request
-```python
-response = requests.post('http://localhost:5000/summarize',
-    json={
-        'session_id': 'user123'
-    }
-)
-print(response.json())
-```
-
-
-
-Please follow these guidelines when contributing:
-1. Create feature branches
-2. Write descriptive commit messages
-3. Add tests for new features
-4. Update documentation
+1. Fork the repository
+2. Create your feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a new Pull Request
 
 ## License
 
