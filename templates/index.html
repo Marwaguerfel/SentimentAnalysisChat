@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SentimentBot</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto max-w-7xl p-4">
+        <div class="grid grid-cols-4 gap-4">
+            <!-- Chat Section -->
+            <div class="col-span-3">
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h1 class="text-2xl font-bold mb-4">SentimentBot</h1>
+                    
+                    <div id="chat-box" class="h-[600px] overflow-y-auto mb-4 p-4 border rounded bg-gray-50">
+                        <div id="messages"></div>
+                    </div>
+
+                    <div class="mt-4">
+                        <form id="chat-form" class="flex gap-2">
+                            <input type="text" id="message" 
+                                   class="flex-1 p-3 border rounded focus:ring-2 focus:ring-blue-300 focus:outline-none" 
+                                   placeholder="Type your message...">
+                            <button type="submit" 
+                                    class="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors">
+                                Send
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Summary Section -->
+            <div class="col-span-1">
+                <div class="bg-white rounded-lg shadow p-6 sticky top-4">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-bold">Conversation Summary</h2>
+                        <button onclick="handleSummarize()" 
+                                class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors text-sm">
+                            Update
+                        </button>
+                    </div>
+                    
+                    <div id="summary-result" class="space-y-4">
+                        <div class="animate-pulse space-y-4">
+                            <div class="text-sm text-gray-500">Summary will appear here...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const sessionId = Date.now().toString(36) + Math.random().toString(36).substring(2);
+
+        document.getElementById('chat-form').onsubmit = async function(e) {
+            e.preventDefault();
+            
+            const messageInput = document.getElementById('message');
+            const message = messageInput.value.trim();
+            if (!message) return;
+
+            addMessage('You: ' + message, 'justify-end');
+            messageInput.value = '';
+            messageInput.focus();
+
+            try {
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        text: message,
+                        session_id: sessionId
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    addMessage('Bot: ' + data.response, 'justify-start', data.sentiment);
+                } else {
+                    addMessage('Error: ' + data.error, 'justify-start error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                addMessage('Error: Failed to get response', 'justify-start error');
+            }
+        };
+
+        async function handleSummarize() {
+            const summaryResult = document.getElementById('summary-result');
+            summaryResult.innerHTML = `
+                <div class="animate-pulse space-y-4">
+                    <div class="h-4 bg-gray-200 rounded w-3/4"></div>
+                    <div class="h-4 bg-gray-200 rounded w-1/2"></div>
+                    <div class="h-4 bg-gray-200 rounded w-5/6"></div>
+                </div>
+            `;
+
+            try {
+                const response = await fetch('/summarize', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        type: 'conversation',
+                        session_id: sessionId
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    formatSummary(data.summary);
+                } else {
+                    summaryResult.innerHTML = `
+                        <div class="text-red-500 text-sm">
+                            Error: ${data.error}
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                summaryResult.innerHTML = `
+                    <div class="text-red-500 text-sm">
+                        Error generating summary
+                    </div>
+                `;
+            }
+        }
+
+        function formatSummary(summary) {
+            const summaryResult = document.getElementById('summary-result');
+            
+            // Split summary into sections
+            const sections = summary.split(/\d+\./g).filter(Boolean);
+            
+            const formattedSummary = sections.map(section => {
+                const [title, ...content] = section.split('\n').filter(Boolean);
+                return `
+                    <div class="border-b pb-3">
+                        <h3 class="font-semibold text-gray-800 mb-2">${title.trim()}</h3>
+                        <div class="text-sm text-gray-600 space-y-1">
+                            ${content.map(line => `<p>${line.trim()}</p>`).join('')}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            summaryResult.innerHTML = `
+                <div class="space-y-4 max-h-[500px] overflow-y-auto pr-2">
+                    ${formattedSummary}
+                </div>
+            `;
+        }
+
+        function addMessage(text, alignment, sentiment = null) {
+            const messages = document.getElementById('messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `flex ${alignment} mb-4`;
+
+            const bubble = document.createElement('div');
+            bubble.className = `max-w-[70%] rounded-lg p-3 ${
+                alignment === 'justify-end' 
+                    ? 'bg-blue-500 text-white' 
+                    : 'bg-white border shadow-sm'
+            }`;
+
+            if (sentiment) {
+                bubble.classList.add(getSentimentClass(sentiment));
+            }
+
+            bubble.textContent = text;
+            messageDiv.appendChild(bubble);
+            messages.appendChild(messageDiv);
+            
+            const chatBox = document.getElementById('chat-box');
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function getSentimentClass(sentiment) {
+            switch(sentiment) {
+                case 'positive': return 'border-green-500';
+                case 'negative': return 'border-red-500';
+                case 'neutral': return 'border-blue-500';
+                default: return 'border-gray-300';
+            }
+        }
+
+        // Auto-focus message input on load
+        document.getElementById('message').focus();
+    </script>
+</body>
+</html>
