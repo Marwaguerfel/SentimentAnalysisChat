@@ -25,15 +25,15 @@ source SentChat/bin/activate  # On Windows use: SentChat\Scripts\activate
 ```
 
 3. Install requirements:
-   requirements.txt
-   -flask==3.0.0
-   -flask-cors==4.0.0
-   -torch==2.1.0
-   -transformers==4.34.0
-   -nltk==3.8.1
-   -openai==1.3.0
-   -python-dotenv==1.0.0
-   -requests==2.31.0
+   - requirements.txt
+      - flask==3.0.0
+      - flask-cors==4.0.0
+      - torch==2.1.0
+      - transformers==4.34.0
+      - nltk==3.8.1
+      - openai==1.3.0
+      - python-dotenv==1.0.0
+      - requests==2.31.0
 ```bash
 pip install -r requirements.txt
 ```
