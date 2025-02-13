@@ -20,11 +20,20 @@ cd sentiment-chatbot
 
 2. Create and activate a virtual environment:
 ```bash
-python -m venv venv
-source venv/bin/activate  # On Windows use: venv\Scripts\activate
+python -m venv SentChat
+source SentChat/bin/activate  # On Windows use: SentChat\Scripts\activate
 ```
 
 3. Install requirements:
+   requirements.txt
+   -flask==3.0.0
+   -flask-cors==4.0.0
+   -torch==2.1.0
+   -transformers==4.34.0
+   -nltk==3.8.1
+   -openai==1.3.0
+   -python-dotenv==1.0.0
+   -requests==2.31.0
 ```bash
 pip install -r requirements.txt
 ```
@@ -43,7 +52,7 @@ pip install -r requirements.txt
 
 6. Run the application:
 ```bash
-python app.py
+python chat.py
 ```
 
 The application will be available at `http://localhost:5000`
@@ -52,7 +61,7 @@ The application will be available at `http://localhost:5000`
 
 ```
 sentiment-chatbot/
-├── app.py              # Main application file
+├── chat.py              # Main application file
 ├── key.example.py      # Example configuration file
 ├── requirements.txt    # Project dependencies
 ├── README.md          # Project documentation
@@ -68,7 +77,7 @@ sentiment-chatbot/
 
 1. Start the server:
 ```bash
-python app.py
+python chat.py
 ```
 
 2. Open your browser and navigate to `http://localhost:5000`
